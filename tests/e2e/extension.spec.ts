@@ -241,7 +241,17 @@ test.describe('painel e modos', () => {
 
   test('modo Foco: pausar exige espera + frase; sem isso nada muda', async ({ ig, context, extensionId }) => {
     const ui = await context.newPage();
-    await ui.clock.install({ time: Date.now() });
+    // clock.install às vezes falha logo após abrir a página (corrida interna do
+    // Playwright, vista no CI); tenta de novo.
+    for (let i = 0; ; i++) {
+      try {
+        await ui.clock.install({ time: Date.now() });
+        break;
+      } catch (err) {
+        if (i >= 4) throw err;
+        await ui.waitForTimeout(300);
+      }
+    }
     await ui.goto(`chrome-extension://${extensionId}/popup.html`);
     await ui.getByRole('button', { name: 'Configurar agora' }).click();
     await ui.getByRole('radio', { name: /Foco permanente/ }).click();
