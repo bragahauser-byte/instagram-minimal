@@ -84,8 +84,10 @@ test.describe('bloqueio na página (Chromium + extensão real)', () => {
     expect(escaped.filter((u) => u.includes('instagram.com'))).toEqual([]);
   });
 
-  test('link de Reel aberto direto: se a página carregar mesmo assim, o content script cobre', async ({ ig }) => {
-    // Aqui o Playwright entrega a página antes da regra de rede, simulando uma falha dela.
+  test('link de Reel aberto direto: se a página carregar mesmo assim, o content script cobre', async ({ context, ig }) => {
+    // Simula uma falha da regra de rede (ex.: navegador sem suporte): remove a regra.
+    const [sw] = context.serviceWorkers();
+    await sw!.evaluate(() => chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [1] }));
     const page = await ig('/reel/ABC123/');
     expect(await probe.overlay(page)).toBe(true);
   });

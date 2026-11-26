@@ -3,7 +3,7 @@
 ## GitHub
 
 - **CI** (`.github/workflows/ci.yml`): typecheck, unitários, build, `web-ext lint`, testes ponta a ponta no Chromium e compilação do projeto Apple em macOS.
-- **Site** (`pages.yml`): publica `apps/dashboard` no GitHub Pages a cada push na `main`. Em *Settings → Pages*, a fonte deve ser **GitHub Actions**.
+- **Site** (`pages.yml`): gera `apps/dashboard` e publica na branch `gh-pages` a cada push na `main`. Publica na branch `gh-pages`; em *Settings → Pages*, a fonte é **Deploy from a branch → gh-pages / (root)**.
 - **Versões** (`release.yml`): ao enviar uma tag `v*`, gera os zips e cria a Release.
 
 ```bash
