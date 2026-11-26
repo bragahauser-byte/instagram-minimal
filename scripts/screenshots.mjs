@@ -68,6 +68,9 @@ async function popupShots(scheme) {
   await p.waitForTimeout(250);
   await p.screenshot({ path: join(out, `popup-modes-${scheme}.png`) });
   await p.getByRole('button', { name: 'Continuar' }).click();
+  await p.waitForTimeout(400);
+  await p.screenshot({ path: join(out, `popup-ready-${scheme}.png`) });
+  await p.getByRole('button', { name: 'Ver o painel' }).click();
   await p.waitForTimeout(300);
   await p.screenshot({ path: join(out, `popup-home-${scheme}.png`) });
   await p.getByRole('button', { name: /Configurações de bloqueio/ }).click();

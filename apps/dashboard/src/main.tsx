@@ -1,132 +1,187 @@
 /**
- * Página pública do projeto (GitHub Pages). Não recebe, não lê e não envia
- * nenhum dado da conta do Instagram. A prévia do painel usa só o
- * localStorage deste site e não controla a extensão instalada.
+ * Página pública do projeto (GitHub Pages). Um botão só, escolhido pelo
+ * aparelho de quem abre. Não recebe, não lê e não envia dados da conta do
+ * Instagram; a prévia do painel usa só o localStorage deste site.
  */
-import { StrictMode, useMemo, useState } from 'react';
+import { StrictMode, useMemo, useState, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { FILTER_KEYS, FILTER_LABELS, SettingsRepository, detectPlatform, localStorageArea, type Platform } from '@im/core';
+import { SettingsRepository, detectPlatform, localStorageArea, type Platform } from '@im/core';
 import { Icon, Logo, MinimalApp } from '@im/ui';
 import '../../../packages/shared-ui/src/ui.css';
 import './site.css';
+import { DOWNLOAD, REPO, STORES } from './stores';
 
-const REPO = 'https://github.com/bragahauser-byte/instagram-minimal';
-const RELEASES = `${REPO}/releases/latest`;
-const doc = (name: string) => `${REPO}/blob/main/docs/${name}`;
+type Device = Platform | 'android-other' | 'iphone-other';
 
-type Install = { id: Platform | 'edge-chrome'; name: string; how: string[]; link?: [string, string] };
+function detectDevice(): Device {
+  const ua = navigator.userAgent;
+  const p = detectPlatform(ua, navigator.maxTouchPoints);
+  if (p === 'unknown' || p === 'chrome' || p === 'edge') {
+    if (/Android/.test(ua)) return 'android-other';
+    if (/iPhone|iPad|CriOS|FxiOS|EdgiOS/.test(ua)) return 'iphone-other';
+  }
+  return p;
+}
 
-const INSTALLS: Install[] = [
-  {
-    id: 'chrome',
-    name: 'Chrome e Edge',
-    how: [
-      'Baixe instagram-minimal-chromium.zip na página de versões e descompacte.',
-      'Abra chrome://extensions (ou edge://extensions) e ligue o Modo do desenvolvedor.',
-      'Clique em "Carregar sem compactação" e escolha a pasta descompactada.',
-    ],
-    link: ['Baixar para Chrome e Edge', RELEASES],
-  },
-  {
-    id: 'firefox',
-    name: 'Firefox',
-    how: [
-      'Baixe instagram-minimal-firefox.zip na página de versões.',
-      'Abra about:debugging → Este Firefox → Carregar extensão temporária e escolha o manifest.json.',
-      'Para instalar de forma permanente, a extensão precisa ser assinada pela Mozilla (veja a documentação).',
-    ],
-    link: ['Baixar para Firefox', RELEASES],
-  },
-  {
-    id: 'firefox-android',
-    name: 'Firefox para Android',
-    how: [
-      'Usa o mesmo pacote do Firefox.',
-      'Depois de publicado no addons.mozilla.org, instale pelo menu Extensões do Firefox no Android.',
-      'Para testar antes disso: web-ext run -t firefox-android (precisa de cabo USB e adb).',
-    ],
-  },
-  {
-    id: 'safari-macos',
-    name: 'Safari no Mac e no iPhone',
-    how: [
-      'Abra apps/ios no Xcode (projeto gerado com XcodeGen) e rode o app no Mac ou no iPhone.',
-      'Ative em Ajustes → Apps → Safari → Extensões → Instagram Minimal (iPhone) ou Safari → Configurações → Extensões (Mac).',
-      'Permita o acesso a instagram.com quando o Safari pedir.',
-    ],
-    link: ['Guia de instalação', doc('installation.md')],
-  },
-];
+type Plan =
+  | { kind: 'store'; label: string; href: string; browser: string }
+  | { kind: 'manual'; browser: 'Chrome' | 'Edge' | 'Firefox' }
+  | { kind: 'switch'; title: string; text: string; href?: string; cta?: string }
+  | { kind: 'soon'; title: string; text: string };
 
-const PRIVACY = [
-  ['Nenhuma senha', 'Você entra no Instagram oficial, como sempre. O Instagram Minimal nunca pede nem vê sua senha.'],
-  ['Nada sai do aparelho', 'Os filtros rodam no navegador. Não há servidor, conta, analytics ou telemetria.'],
-  ['Só o instagram.com', 'A extensão só tem acesso ao site do Instagram. Mais nenhum.'],
-  ['Código aberto', 'Cada linha pode ser lida e auditada no GitHub.'],
-];
+function planFor(d: Device): Plan {
+  switch (d) {
+    case 'chrome':
+      return STORES.chrome ? { kind: 'store', label: 'Adicionar ao Chrome', href: STORES.chrome, browser: 'Chrome' } : { kind: 'manual', browser: 'Chrome' };
+    case 'edge':
+      return STORES.edge
+        ? { kind: 'store', label: 'Adicionar ao Edge', href: STORES.edge, browser: 'Edge' }
+        : STORES.chrome
+          ? { kind: 'store', label: 'Adicionar ao Edge', href: STORES.chrome, browser: 'Edge' }
+          : { kind: 'manual', browser: 'Edge' };
+    case 'firefox':
+    case 'firefox-android':
+      return STORES.firefox ? { kind: 'store', label: 'Adicionar ao Firefox', href: STORES.firefox, browser: 'Firefox' } : { kind: 'manual', browser: 'Firefox' };
+    case 'android-other':
+      return {
+        kind: 'switch',
+        title: 'No Android, use o Firefox',
+        text: 'O app do Instagram e o Chrome do Android não aceitam extensões. Instale o Firefox, abra este site nele e toque no botão.',
+        href: 'https://play.google.com/store/apps/details?id=org.mozilla.firefox',
+        cta: 'Baixar o Firefox',
+      };
+    case 'safari-ios':
+    case 'iphone-other':
+      return STORES.appStore
+        ? { kind: 'store', label: 'Baixar na App Store', href: STORES.appStore, browser: 'Safari' }
+        : { kind: 'soon', title: 'Em breve no iPhone', text: 'A versão para iPhone está pronta e aguarda publicação na App Store. Enquanto isso, use no computador.' };
+    case 'safari-macos':
+      return STORES.appStore
+        ? { kind: 'store', label: 'Baixar na App Store', href: STORES.appStore, browser: 'Safari' }
+        : { kind: 'soon', title: 'Em breve no Safari', text: 'A versão para Mac aguarda publicação. Enquanto isso, use no Chrome, no Edge ou no Firefox.' };
+    default:
+      return { kind: 'manual', browser: 'Chrome' };
+  }
+}
+
+function Primary({ plan }: { plan: Plan }) {
+  const [open, setOpen] = useState(false);
+  if (plan.kind === 'store')
+    return (
+      <a className="im-button primary big" href={plan.href}>
+        {plan.label}
+      </a>
+    );
+  if (plan.kind === 'switch' || plan.kind === 'soon')
+    return (
+      <div className="notice">
+        <h3>{plan.title}</h3>
+        <p>{plan.text}</p>
+        {plan.kind === 'switch' && plan.href && (
+          <a className="im-button primary" href={plan.href}>
+            {plan.cta}
+          </a>
+        )}
+      </div>
+    );
+  // Instalação manual: enquanto não está na loja.
+  const target = plan.browser === 'Firefox' ? 'firefox' : 'chromium';
+  return (
+    <>
+      <a className="im-button primary big" href={DOWNLOAD(target)} onClick={() => setOpen(true)}>
+        Baixar para {plan.browser}
+      </a>
+      {open && <ManualSteps browser={plan.browser} />}
+      {!open && (
+        <button type="button" className="linkish" onClick={() => setOpen(true)}>
+          Como instalar
+        </button>
+      )}
+    </>
+  );
+}
+
+function ManualSteps({ browser }: { browser: 'Chrome' | 'Edge' | 'Firefox' }) {
+  const page = browser === 'Edge' ? 'edge://extensions' : browser === 'Chrome' ? 'chrome://extensions' : 'about:debugging#/runtime/this-firefox';
+  const [copied, setCopied] = useState(false);
+  return (
+    <ol className="manual">
+      <li>Descompacte o arquivo baixado.</li>
+      <li>
+        Cole na barra de endereço:{' '}
+        <button
+          type="button"
+          className="chip"
+          onClick={() => navigator.clipboard?.writeText(page).then(() => setCopied(true))}
+        >
+          {page} {copied ? '✓ copiado' : '· copiar'}
+        </button>
+      </li>
+      {browser === 'Firefox' ? (
+        <li>
+          Clique em <b>Carregar extensão temporária</b> e escolha o arquivo <b>manifest.json</b>.
+        </li>
+      ) : (
+        <li>
+          Ligue o <b>Modo do desenvolvedor</b>, clique em <b>Carregar sem compactação</b> e escolha a pasta.
+        </li>
+      )}
+      <li>Pronto: toque em <b>Abrir o Instagram</b> e entre normalmente.</li>
+    </ol>
+  );
+}
+
+function Step({ n, title, children }: { n: number; title: string; children: ReactNode }) {
+  return (
+    <div className="step">
+      <span className="step-n">{n}</span>
+      <h3>{title}</h3>
+      <p>{children}</p>
+    </div>
+  );
+}
 
 function Site() {
-  const platform = useMemo(() => detectPlatform(navigator.userAgent, navigator.maxTouchPoints), []);
+  const device = useMemo(detectDevice, []);
+  const plan = useMemo(() => planFor(device), [device]);
+  const platform = detectPlatform(navigator.userAgent, navigator.maxTouchPoints);
   const repo = useMemo(() => new SettingsRepository(localStorageArea(window.localStorage, 'im-demo:')), []);
   const [key, setKey] = useState(0);
 
   return (
     <div className="site im-root">
-      <header className="top">
-        <a className="brand" href="#">
-          <Logo size={28} />
-          <span>Instagram Minimal</span>
-        </a>
-        <nav>
-          <a href="#instalar">Instalar</a>
-          <a href="#privacidade">Privacidade</a>
-          <a href="#docs">Documentação</a>
-          <a href={REPO}>GitHub</a>
-        </nav>
-      </header>
-
       <section className="hero">
         <Logo size={72} className="hero-logo" />
         <h1>Seu Instagram. Do seu jeito.</h1>
-        <p>Menos distrações. Mais intenção.</p>
+        <p>Sem Reels. Sem sugeridos. Direct, Stories e quem você segue continuam iguais.</p>
         <div className="hero-cta">
-          <a className="im-button primary" href="#instalar">
-            Configurar agora
-          </a>
-          <a className="im-button plain" href="#previa">
-            Ver o painel
-          </a>
+          <Primary plan={plan} />
         </div>
-        <p className="fine">Gratuito, de código aberto e sem login próprio.</p>
+        <p className="fine">Grátis. Você entra no Instagram de sempre — sua senha nunca passa por aqui.</p>
       </section>
 
       <section className="band">
-        <div className="cols3">
-          <div>
-            <h3>Sem Reels</h3>
-            <p>Aba, páginas, links e reprodução de Reels bloqueados — inclusive os que chegam pelo Direct.</p>
-          </div>
-          <div>
-            <h3>Sem sugeridos</h3>
-            <p>Só posts de quem você segue no feed. Sugestões de pessoas para seguir continuam.</p>
-          </div>
-          <div>
-            <h3>Tudo o resto igual</h3>
-            <p>Direct, Stories, curtidas, comentários, perfis, notificações e publicar continuam normais.</p>
-          </div>
+        <div className="steps">
+          <Step n={1} title="Instale">
+            Um toque no botão acima.
+          </Step>
+          <Step n={2} title="Abra o Instagram">
+            O botão aparece assim que termina de instalar.
+          </Step>
+          <Step n={3} title="Entre e use">
+            Com sua conta, como sempre. O bloqueio já está ligado.
+          </Step>
         </div>
       </section>
 
       <section className="section" id="previa">
-        <h2>Configure em segundos.</h2>
-        <p className="lead">
-          Três modos: Manual, Automático e Foco permanente. Cada bloqueio liga e desliga separadamente.
-        </p>
+        <h2>Um painel simples.</h2>
+        <p className="lead">Ligar, pausar e escolher o que bloquear. Nada além disso.</p>
         <div className="device">
-          <MinimalApp key={key} repo={repo} env={{ platform, layout: 'popup', docsUrl: '#docs', demo: true }} />
+          <MinimalApp key={key} repo={repo} env={{ platform, layout: 'popup', docsUrl: `${REPO}#readme`, demo: true }} />
         </div>
         <p className="fine center">
-          Prévia interativa. As escolhas ficam só neste navegador e não controlam a extensão.{' '}
+          Prévia: não controla a extensão.{' '}
           <button
             className="linkish"
             type="button"
@@ -135,49 +190,17 @@ function Site() {
               setKey((k) => k + 1);
             }}
           >
-            Recomeçar a prévia
+            Recomeçar
           </button>
         </p>
       </section>
 
-      <section className="band" id="bloqueios">
-        <h2>O que pode ser bloqueado</h2>
-        <ul className="grid-list">
-          {FILTER_KEYS.map((k) => (
-            <li key={k}>
-              <strong>{FILTER_LABELS[k].title}</strong>
-              <span>{FILTER_LABELS[k].description}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="section" id="instalar">
-        <h2>Instalar</h2>
-        <p className="lead">Instale, abra o instagram.com e entre normalmente. O bloqueio começa sozinho.</p>
-        <div className="installs">
-          {INSTALLS.map((i) => (
-            <article key={i.id} className={`install ${platform.startsWith(i.id.split('-')[0]!) ? 'current' : ''}`}>
-              <h3>{i.name}</h3>
-              <ol>
-                {i.how.map((s) => (
-                  <li key={s}>{s}</li>
-                ))}
-              </ol>
-              {i.link && (
-                <a className="im-button secondary" href={i.link[1]}>
-                  {i.link[0]}
-                </a>
-              )}
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="band" id="privacidade">
-        <h2>Privacidade em primeiro lugar</h2>
-        <div className="cols2">
-          {PRIVACY.map(([t, d]) => (
+      <section className="band">
+        <div className="cols2 privacy">
+          {[
+            ['Sem senha', 'O login é no instagram.com oficial. Nada passa por este site.'],
+            ['Nada sai do aparelho', 'Sem servidor, sem conta, sem rastreamento.'],
+          ].map(([t, d]) => (
             <div key={t} className="fact">
               <span className="im-check">{Icon.check({ size: 20 })}</span>
               <div>
@@ -189,31 +212,33 @@ function Site() {
         </div>
       </section>
 
-      <section className="section" id="docs">
-        <h2>Documentação</h2>
-        <div className="docs">
-          {[
-            ['Instalação', 'installation.md'],
-            ['Privacidade e permissões', 'privacy.md'],
-            ['Arquitetura', 'architecture.md'],
-            ['Seletores e como atualizar', 'selectors.md'],
-            ['Desenvolvimento e testes', 'development.md'],
-            ['Publicação', 'publishing.md'],
-            ['Problemas comuns', 'troubleshooting.md'],
-            ['Limitações conhecidas', 'limitations.md'],
-          ].map(([t, f]) => (
-            <a key={f} href={doc(f!)} className="doc">
-              {t}
-              {Icon.chevronRight()}
-            </a>
-          ))}
-        </div>
-      </section>
-
       <footer className="foot">
+        <details className="more">
+          <summary>Outros aparelhos e instalação manual</summary>
+          <div className="more-grid">
+            <div>
+              <h4>Chrome e Edge</h4>
+              <a href={DOWNLOAD('chromium')}>Baixar</a>
+              <ManualSteps browser="Chrome" />
+            </div>
+            <div>
+              <h4>Firefox (computador e Android)</h4>
+              <a href={DOWNLOAD('firefox')}>Baixar</a>
+              <ManualSteps browser="Firefox" />
+            </div>
+            <div>
+              <h4>iPhone e Mac</h4>
+              <p>Aguardando publicação na App Store. Quem tem Mac com Xcode pode instalar pelo código.</p>
+            </div>
+          </div>
+        </details>
+        <p className="links">
+          <a href={REPO}>Código no GitHub</a> · <a href={`${REPO}/blob/main/docs/privacy.md`}>Privacidade</a> ·{' '}
+          <a href={`${REPO}/blob/main/docs/installation.md`}>Ajuda</a>
+        </p>
         <p>
-          Instagram Minimal é um projeto independente e de código aberto (MIT). Não é afiliado, patrocinado ou aprovado
-          pela Meta ou pelo Instagram. "Instagram" é marca da Meta Platforms, Inc.
+          Projeto independente e de código aberto. Não é afiliado à Meta nem ao Instagram. "Instagram" é marca da Meta
+          Platforms, Inc.
         </p>
       </footer>
     </div>

@@ -16,6 +16,10 @@ export function mount(layout: AppEnv['layout']) {
     getStatus: getExtensionStatus,
     requestAccess: requestInstagramAccess,
     initialRoute: location.hash === '#welcome' ? 'welcome' : undefined,
+    openInstagram: () => {
+      void api.tabs.create({ url: 'https://www.instagram.com/' });
+      if (layout === 'popup') window.close();
+    },
   };
   document.documentElement.classList.add('im-root');
   createRoot(document.getElementById('root')!).render(<MinimalApp repo={repo} env={env} />);

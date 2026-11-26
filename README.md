@@ -52,7 +52,7 @@ Detalhes em [docs/installation.md](docs/installation.md) e [docs/publishing.md](
 ## Como foi verificado
 
 - **124 testes unitários** (Vitest + jsdom) com páginas fictícias que reproduzem a estrutura real do Instagram: classificação de posts, links, Direct, Explorar, perfis, Stories, os três modos, persistência e navegação entre seções.
-- **18 testes ponta a ponta** (Playwright) num **Chromium de verdade com a extensão compilada**, contra um Instagram simulado servido em `https://www.instagram.com/` (sem tocar a internet): popup, modos, persistência após recarregar, navegação SPA, regra de rede para links diretos e o Direct.
+- **19 testes ponta a ponta** (Playwright) num **Chromium de verdade com a extensão compilada**, contra um Instagram simulado servido em `https://www.instagram.com/` (sem tocar a internet): popup, modos, persistência após recarregar, navegação SPA, regra de rede para links diretos e o Direct.
 - **Teste manual no instagram.com real** (26/nov/2026, logado, Chrome desktop) do mesmo motor dos filtros: anúncios e sugeridos removidos, vídeos comuns preservados, Reels do Direct bloqueados (inclusive na janela flutuante), clique no cartão bloqueado não abre, Explorar oculto/acessível. Ver [docs/limitations.md](docs/limitations.md).
 
 ```bash

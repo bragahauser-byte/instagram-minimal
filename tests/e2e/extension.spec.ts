@@ -181,6 +181,7 @@ test.describe('painel e modos', () => {
     await ui.getByRole('button', { name: 'Configurar agora' }).click();
     await ui.getByRole('radio', { name: /Manual/ }).click();
     await ui.getByRole('button', { name: 'Continuar' }).click();
+    await ui.getByRole('button', { name: 'Ver o painel' }).click();
     await expect(ui.getByText('Bloqueador ativo')).toBeVisible();
 
     const page = await ig('/');
@@ -207,6 +208,7 @@ test.describe('painel e modos', () => {
     const ui = await popup();
     await ui.getByRole('button', { name: 'Configurar agora' }).click();
     await ui.getByRole('button', { name: 'Continuar' }).click(); // Automático (padrão)
+    await ui.getByRole('button', { name: 'Ver o painel' }).click();
     const page = await ig('/');
     await ui.getByRole('button', { name: /Configurações de bloqueio/ }).click();
     await ui.getByRole('switch', { name: 'Publicações sugeridas' }).click();
@@ -223,6 +225,7 @@ test.describe('painel e modos', () => {
     await ui.getByRole('button', { name: 'Configurar agora' }).click();
     await ui.getByRole('radio', { name: /Automático/ }).click();
     await ui.getByRole('button', { name: 'Continuar' }).click();
+    await ui.getByRole('button', { name: 'Ver o painel' }).click();
     const page = await ig('/');
     expect(await probe.hidden(page, 'post-2')).toBe(true);
 
@@ -243,6 +246,7 @@ test.describe('painel e modos', () => {
     await ui.getByRole('button', { name: 'Configurar agora' }).click();
     await ui.getByRole('radio', { name: /Foco permanente/ }).click();
     await ui.getByRole('button', { name: 'Continuar' }).click();
+    await ui.getByRole('button', { name: 'Ver o painel' }).click();
     const page = await ig('/');
 
     await ui.getByRole('button', { name: /Configurações de bloqueio/ }).click();
@@ -274,10 +278,34 @@ test.describe('painel e modos', () => {
     await expect.poll(() => probe.hidden(page, 'post-2')).toBe(true);
   });
 
+  test('fim da configuração: "Tudo pronto" e um toque abre o Instagram', async ({ popup }) => {
+    const ui = await popup();
+    await ui.getByRole('button', { name: 'Configurar agora' }).click();
+    await expect(ui.getByText('Recomendado')).toBeVisible();
+    await ui.getByRole('button', { name: 'Continuar' }).click();
+    await expect(ui.getByRole('heading', { name: 'Tudo pronto.' })).toBeVisible();
+    // Abas criadas pela extensão escapam da interceptação do Playwright e iriam
+    // ao instagram.com real; por isso só verificamos a chamada.
+    await ui.evaluate(() => {
+      const w = window as unknown as { __created: string[] };
+      w.__created = [];
+      chrome.tabs.create = ((o: { url: string }) => {
+        w.__created.push(o.url);
+        return Promise.resolve({});
+      }) as unknown as typeof chrome.tabs.create;
+      window.close = () => {};
+    });
+    await ui.getByRole('button', { name: 'Abrir o Instagram' }).click();
+    expect(await ui.evaluate(() => (window as unknown as { __created: string[] }).__created)).toEqual([
+      'https://www.instagram.com/',
+    ]);
+  });
+
   test('tela de privacidade lista as garantias e permissões', async ({ popup }) => {
     const ui = await popup();
     await ui.getByRole('button', { name: 'Configurar agora' }).click();
     await ui.getByRole('button', { name: 'Continuar' }).click();
+    await ui.getByRole('button', { name: 'Ver o painel' }).click();
     await ui.getByRole('button', { name: 'Privacidade' }).click();
     for (const t of [
       'Nenhuma senha armazenada',

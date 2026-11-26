@@ -40,9 +40,11 @@ export interface AppEnv {
   requestAccess?: () => Promise<boolean>;
   /** Tela inicial forçada (ex.: "welcome" na página aberta após instalar). */
   initialRoute?: Route;
+  /** Abre o instagram.com (na extensão, numa aba nova). */
+  openInstagram?: () => void;
 }
 
-type Route = 'welcome' | 'mode' | 'home' | 'settings' | 'privacy' | 'unlock' | 'change-mode';
+type Route = 'welcome' | 'mode' | 'ready' | 'home' | 'settings' | 'privacy' | 'unlock' | 'change-mode';
 
 const fmtClock = (ms: number) => {
   const s = Math.ceil(ms / 1000);
@@ -127,10 +129,13 @@ export function MinimalApp({ repo, env }: { repo: SettingsRepository; env: AppEn
           cta="Continuar"
           onConfirm={async () => {
             await dispatch({ type: 'completeOnboarding', mode: draftMode });
-            setRoute('home');
+            setRoute('ready');
           }}
         />
       );
+      break;
+    case 'ready':
+      screen = <Ready env={env} onPanel={() => setRoute('home')} />;
       break;
     case 'change-mode':
       screen = (
@@ -211,6 +216,27 @@ function Welcome({ onStart }: { onStart: () => void }) {
   );
 }
 
+function openInstagram(env: AppEnv) {
+  if (env.openInstagram) env.openInstagram();
+  else window.open('https://www.instagram.com/', '_blank', 'noopener');
+}
+
+function Ready({ env, onPanel }: { env: AppEnv; onPanel: () => void }) {
+  return (
+    <main className="im-screen im-welcome">
+      <span className="im-ready-check">{Icon.check({ size: 34 })}</span>
+      <h1>Tudo pronto.</h1>
+      <p>Abra o Instagram e entre com sua conta, como sempre. O bloqueio já está ligado.</p>
+      <Button block onClick={() => openInstagram(env)}>
+        Abrir o Instagram
+      </Button>
+      <Button variant="plain" block onClick={onPanel}>
+        Ver o painel
+      </Button>
+    </main>
+  );
+}
+
 function ModeSelect(props: {
   title: string;
   value: Mode;
@@ -235,7 +261,10 @@ function ModeSelect(props: {
           >
             <span className="im-radio">{props.value === m && Icon.check({ size: 14 })}</span>
             <span>
-              <span className="im-mode-title">{MODE_LABELS[m].title}</span>
+              <span className="im-mode-title">
+                {MODE_LABELS[m].title}
+                {m === 'automatic' && <span className="im-badge im-badge-accent">Recomendado</span>}
+              </span>
               <span className="im-mode-desc">{MODE_LABELS[m].description}</span>
             </span>
           </button>
@@ -324,6 +353,10 @@ function Home({
           </div>
         )}
       </section>
+
+      <Group>
+        <Row tone="link" title="Abrir o Instagram" chevron={false} onClick={() => openInstagram(env)} />
+      </Group>
 
       <Group>
         <Row

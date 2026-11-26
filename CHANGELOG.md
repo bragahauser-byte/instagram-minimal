@@ -9,4 +9,5 @@ Primeira versão.
 - Modos Manual, Automático e Foco permanente; configuração local e persistente.
 - Painel em React com design inspirado nos apps da Apple, modo escuro e prévia no site do projeto.
 - App SwiftUI para iOS e macOS (XcodeGen) com a extensão Safari.
-- 124 testes unitários e 18 testes ponta a ponta.
+- 124 testes unitários e 19 testes ponta a ponta.
+- Uso simplificado: site com um botão por aparelho; configuração inicial termina em "Abrir o Instagram".
