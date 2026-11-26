@@ -21,6 +21,7 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run package
+      - run: npm run build:userscript
       - name: Criar release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -28,4 +29,5 @@ jobs:
           cp release/instagram-minimal-chromium-v*.zip release/instagram-minimal-chromium.zip
           cp release/instagram-minimal-firefox-v*.zip release/instagram-minimal-firefox.zip
           cp release/instagram-minimal-safari-v*.zip release/instagram-minimal-safari.zip
-          gh release create "$GITHUB_REF_NAME" release/*.zip --title "Instagram Minimal $GITHUB_REF_NAME" --notes-file CHANGELOG.md
+          cp dist/userscript/instagram-minimal.user.js release/
+          gh release create "$GITHUB_REF_NAME" release/*.zip release/instagram-minimal.user.js --title "Instagram Minimal $GITHUB_REF_NAME" --notes-file CHANGELOG.md

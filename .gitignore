@@ -10,3 +10,4 @@ node_modules/
 playwright-report/
 release/
 test-results/
+apps/dashboard/public/instagram-minimal.user.js

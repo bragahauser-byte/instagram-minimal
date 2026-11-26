@@ -13,3 +13,12 @@ export const STORES = {
 export const REPO = 'https://github.com/bragahauser-byte/instagram-minimal';
 export const DOWNLOAD = (target: 'chromium' | 'firefox') =>
   `${REPO}/releases/latest/download/instagram-minimal-${target}.zip`;
+
+export const SITE = 'https://bragahauser-byte.github.io/instagram-minimal/';
+export const USERSCRIPT = SITE + 'instagram-minimal.user.js';
+/** Apps gratuitos que rodam o userscript. */
+export const FREE = {
+  userscriptsIOS: 'https://apps.apple.com/br/app/userscripts/id1463298887',
+  violentmonkeyFirefox: 'https://addons.mozilla.org/firefox/addon/violentmonkey/',
+  firefoxAndroid: 'https://play.google.com/store/apps/details?id=org.mozilla.firefox',
+};

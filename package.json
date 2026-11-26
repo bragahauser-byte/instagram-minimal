@@ -1,6 +1,6 @@
 {
   "name": "instagram-minimal",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "description": "Use o Instagram sem Reels, sem vídeos curtos recomendados e sem publicações sugeridas. Extensão local, privada e de código aberto.",
@@ -8,14 +8,15 @@
   "scripts": {
     "build": "npm run build:ext && npm run build:dashboard",
     "build:ext": "node scripts/build-extensions.mjs",
-    "build:dashboard": "vite build --config apps/dashboard/vite.config.ts",
+    "build:dashboard": "node scripts/build-userscript.mjs && vite build --config apps/dashboard/vite.config.ts",
     "dev:dashboard": "vite --config apps/dashboard/vite.config.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "test:e2e": "node scripts/build-extensions.mjs && playwright test",
+    "test:e2e": "node scripts/build-extensions.mjs && node scripts/build-userscript.mjs && playwright test",
     "test:all": "npm run typecheck && npm test && npm run test:e2e",
     "package": "node scripts/build-extensions.mjs && node scripts/package.mjs",
-    "icons": "node scripts/build-icons.mjs"
+    "icons": "node scripts/build-icons.mjs",
+    "build:userscript": "node scripts/build-userscript.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.64.0",

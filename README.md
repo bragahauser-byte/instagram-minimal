@@ -45,7 +45,9 @@ Cada bloqueio liga e desliga separadamente. Tudo fica salvo só no seu navegador
 | Microsoft Edge | `dist/chromium` (mesmo pacote) | Construída; mesmo motor do Chrome, não testada à parte |
 | Mozilla Firefox | `dist/firefox` (MV3) | Construída; validada com `web-ext lint` no CI; não testada num Firefox real |
 | Firefox para Android | `dist/firefox` (`gecko_android`) | Construída; precisa de publicação no AMO para instalar no celular |
-| Safari macOS e iPhone | `apps/ios` (SwiftUI + Safari Web Extension) | Código e projeto prontos; compilação verificada pelo CI em macOS; **não instalado num aparelho** (precisa de Mac, Xcode e conta Apple) |
+| **iPhone (Safari), grátis** | userscript + app gratuito Userscripts | Testado em tela de iPhone simulada (Chromium); **não testado num iPhone real** |
+| **Android (Firefox), grátis** | userscript + Violentmonkey | Mesmo script; não testado num Android real |
+| Safari macOS e iPhone (app próprio) | `apps/ios` (SwiftUI + Safari Web Extension) | Código e projeto prontos; compilação verificada pelo CI em macOS; **não instalado num aparelho** (precisa de Mac, Xcode e conta Apple) |
 
 Detalhes em [docs/installation.md](docs/installation.md) e [docs/publishing.md](docs/publishing.md).
 

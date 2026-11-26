@@ -27,6 +27,12 @@ No teste real, o motor foi injetado numa aba logada do Chrome (o mesmo código d
 - **Instagram web no celular** (layout mobile): coberto pelos seletores de URL/ARIA e por fixtures, não testado num celular real.
 - **Safari**: o suporte a `declarativeNetRequest` com redirecionamento para a página da extensão varia por versão. Se não funcionar, a camada do content script (tela de bloqueio) continua protegendo.
 
+## Userscript no celular
+
+- Testado com o script injetado numa tela de iPhone simulada (Chromium do Playwright). O fluxo real com o app Userscripts no Safari do iPhone e com o Violentmonkey no Firefox para Android **não foi executado num aparelho**.
+- Todos os bloqueios ficam ligados; não há painel nem modos (pausar = desligar o script no app).
+- Sem a regra de rede: um link de Reel aberto direto mostra a tela de bloqueio depois que a página começa a carregar.
+
 ## Limitações técnicas
 
 - **Depende da interface do Instagram.** Mudanças de estrutura podem fazer algo escapar até os seletores serem atualizados ([selectors.md](selectors.md)). Por isso há várias camadas: se o cartão escapar, a tela de bloqueio cobre quando o Reel abre.

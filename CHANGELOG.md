@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0 — 26/nov/2026
+
+- **Celular grátis:** Instagram Minimal como userscript (`instagram-minimal.user.js`), para o Safari do iPhone (app gratuito Userscripts) e o Firefox para Android (Violentmonkey). Servido pelo site e anexado à Release.
+- Site mostra o passo a passo certo para cada aparelho (iPhone Safari/Chrome, Android Firefox/Chrome, computador).
+- Configuração inicial termina em "Tudo pronto → Abrir o Instagram".
+
 ## 1.0.0 — 26/nov/2026
 
 Primeira versão.

@@ -443,3 +443,53 @@ body {
 .links {
   margin-bottom: 12px !important;
 }
+
+.free {
+  width: 100%;
+  max-width: 460px;
+  text-align: left;
+  background: var(--bg);
+  border-radius: var(--radius-l);
+  padding: 22px 20px;
+}
+.free h3 {
+  font-size: 20px;
+  margin-bottom: 6px;
+  text-align: center;
+}
+.free ol {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  display: grid;
+  gap: 18px;
+}
+.free li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.free li .step-n {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+}
+.free li p {
+  margin: 3px 0 10px;
+  font-size: 15px;
+  color: var(--text);
+}
+.free li b {
+  font-weight: 600;
+}
+.free .im-button {
+  min-height: 44px;
+  font-size: 15px !important;
+}
+.free-note {
+  color: var(--text-2) !important;
+  font-size: 13px !important;
+  text-align: center;
+  margin: 14px 0 0 !important;
+}

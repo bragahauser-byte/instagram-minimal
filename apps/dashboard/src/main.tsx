@@ -9,9 +9,11 @@ import { SettingsRepository, detectPlatform, localStorageArea, type Platform } f
 import { Icon, Logo, MinimalApp } from '@im/ui';
 import '../../../packages/shared-ui/src/ui.css';
 import './site.css';
-import { DOWNLOAD, REPO, STORES } from './stores';
+import { DOWNLOAD, FREE, REPO, SITE, STORES, USERSCRIPT } from './stores';
 
 type Device = Platform | 'android-other' | 'iphone-other';
+
+type FreeStep = { text: ReactNode; cta?: string; href?: string; copy?: string };
 
 function detectDevice(): Device {
   const ua = navigator.userAgent;
@@ -27,7 +29,8 @@ type Plan =
   | { kind: 'store'; label: string; href: string; browser: string }
   | { kind: 'manual'; browser: 'Chrome' | 'Edge' | 'Firefox' }
   | { kind: 'switch'; title: string; text: string; href?: string; cta?: string }
-  | { kind: 'soon'; title: string; text: string };
+  | { kind: 'soon'; title: string; text: string }
+  | { kind: 'steps'; title: string; note?: string; steps: FreeStep[] };
 
 function planFor(d: Device): Plan {
   switch (d) {
@@ -39,22 +42,46 @@ function planFor(d: Device): Plan {
         : STORES.chrome
           ? { kind: 'store', label: 'Adicionar ao Edge', href: STORES.chrome, browser: 'Edge' }
           : { kind: 'manual', browser: 'Edge' };
-    case 'firefox':
     case 'firefox-android':
+      return {
+        kind: 'steps',
+        title: 'Grátis no Firefox para Android',
+        steps: [
+          { text: 'Instale o Violentmonkey (grátis).', cta: 'Instalar Violentmonkey', href: FREE.violentmonkeyFirefox },
+          { text: <>Volte aqui, toque abaixo e depois em <b>Confirmar instalação</b>.</>, cta: 'Instalar o Instagram Minimal', href: USERSCRIPT },
+          { text: 'Abra o Instagram e entre com sua conta.', cta: 'Abrir o Instagram', href: 'https://www.instagram.com/' },
+        ],
+      };
+    case 'firefox':
       return STORES.firefox ? { kind: 'store', label: 'Adicionar ao Firefox', href: STORES.firefox, browser: 'Firefox' } : { kind: 'manual', browser: 'Firefox' };
     case 'android-other':
       return {
-        kind: 'switch',
-        title: 'No Android, use o Firefox',
-        text: 'O app do Instagram e o Chrome do Android não aceitam extensões. Instale o Firefox, abra este site nele e toque no botão.',
-        href: 'https://play.google.com/store/apps/details?id=org.mozilla.firefox',
-        cta: 'Baixar o Firefox',
+        kind: 'steps',
+        title: 'No Android, use o Firefox (grátis)',
+        note: 'O Chrome do celular e o app do Instagram não aceitam nenhum tipo de complemento. O Firefox aceita.',
+        steps: [
+          { text: 'Instale o Firefox.', cta: 'Baixar o Firefox', href: FREE.firefoxAndroid },
+          { text: 'Abra este endereço no Firefox:', copy: SITE },
+        ],
       };
     case 'safari-ios':
+      return {
+        kind: 'steps',
+        title: 'Grátis no Safari do iPhone',
+        steps: [
+          { text: <>Instale o app <b>Userscripts</b> (grátis), abra uma vez e escolha uma pasta quando ele pedir.</>, cta: 'Baixar Userscripts', href: FREE.userscriptsIOS },
+          { text: <>Em <b>Ajustes → Apps → Safari → Extensões → Userscripts</b>: ative e permita em <b>instagram.com</b>.</> },
+          { text: <>Volte aqui no Safari, toque abaixo, depois no ícone <b>ᴬA</b> da barra → <b>Userscripts</b> → <b>Instalar</b>.</>, cta: 'Instalar o Instagram Minimal', href: USERSCRIPT },
+          { text: 'Abra o Instagram no Safari e entre com sua conta.', cta: 'Abrir o Instagram', href: 'https://www.instagram.com/' },
+        ],
+      };
     case 'iphone-other':
-      return STORES.appStore
-        ? { kind: 'store', label: 'Baixar na App Store', href: STORES.appStore, browser: 'Safari' }
-        : { kind: 'soon', title: 'Em breve no iPhone', text: 'A versão para iPhone está pronta e aguarda publicação na App Store. Enquanto isso, use no computador.' };
+      return {
+        kind: 'steps',
+        title: 'No iPhone, use o Safari',
+        note: 'O Chrome do iPhone e o app do Instagram não aceitam nenhum tipo de complemento. O Safari aceita, de graça.',
+        steps: [{ text: 'Copie o endereço e abra no Safari:', copy: SITE }],
+      };
     case 'safari-macos':
       return STORES.appStore
         ? { kind: 'store', label: 'Baixar na App Store', href: STORES.appStore, browser: 'Safari' }
@@ -64,8 +91,44 @@ function planFor(d: Device): Plan {
   }
 }
 
+function CopyButton({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button type="button" className="chip" onClick={() => navigator.clipboard?.writeText(value).then(() => setCopied(true))}>
+      {value.replace('https://', '')} {copied ? '✓ copiado' : '· copiar'}
+    </button>
+  );
+}
+
+function FreeSteps({ plan }: { plan: Extract<Plan, { kind: 'steps' }> }) {
+  return (
+    <div className="free">
+      <h3>{plan.title}</h3>
+      {plan.note && <p className="free-note">{plan.note}</p>}
+      <ol>
+        {plan.steps.map((st, i) => (
+          <li key={i}>
+            <span className="step-n">{i + 1}</span>
+            <div>
+              <p>{st.text}</p>
+              {st.copy && <CopyButton value={st.copy} />}
+              {st.href && (
+                <a className={`im-button ${i === plan.steps.length - 1 ? 'primary' : 'secondary'}`} href={st.href}>
+                  {st.cta}
+                </a>
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
+      <p className="free-note">Sem pagar nada, sem conta nova. O login é no Instagram de sempre.</p>
+    </div>
+  );
+}
+
 function Primary({ plan }: { plan: Plan }) {
   const [open, setOpen] = useState(false);
+  if (plan.kind === 'steps') return <FreeSteps plan={plan} />;
   if (plan.kind === 'store')
     return (
       <a className="im-button primary big" href={plan.href}>
@@ -157,9 +220,12 @@ function Site() {
         <div className="hero-cta">
           <Primary plan={plan} />
         </div>
-        <p className="fine">Grátis. Você entra no Instagram de sempre — sua senha nunca passa por aqui.</p>
+        {plan.kind !== 'steps' && (
+          <p className="fine">Grátis. Você entra no Instagram de sempre — sua senha nunca passa por aqui.</p>
+        )}
       </section>
 
+      {plan.kind !== 'steps' && (
       <section className="band">
         <div className="steps">
           <Step n={1} title="Instale">
@@ -173,6 +239,7 @@ function Site() {
           </Step>
         </div>
       </section>
+      )}
 
       <section className="section" id="previa">
         <h2>Um painel simples.</h2>
@@ -227,8 +294,11 @@ function Site() {
               <ManualSteps browser="Firefox" />
             </div>
             <div>
-              <h4>iPhone e Mac</h4>
-              <p>Aguardando publicação na App Store. Quem tem Mac com Xcode pode instalar pelo código.</p>
+              <h4>iPhone (Safari) e Android (Firefox) — grátis</h4>
+              <p>
+                Instale o app gratuito Userscripts (iPhone) ou o Violentmonkey (Firefox Android) e depois{' '}
+                <a href={USERSCRIPT}>o script do Instagram Minimal</a>. Abra este site pelo celular para ver o passo a passo.
+              </p>
             </div>
           </div>
         </details>
