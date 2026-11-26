@@ -1,0 +1,31 @@
+name: Release
+
+# Publica uma versão no GitHub com os .zip das extensões quando uma tag v* é enviada:
+#   git tag v1.0.0 && git push origin v1.0.0
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run package
+      - name: Criar release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp release/instagram-minimal-chromium-v*.zip release/instagram-minimal-chromium.zip
+          cp release/instagram-minimal-firefox-v*.zip release/instagram-minimal-firefox.zip
+          cp release/instagram-minimal-safari-v*.zip release/instagram-minimal-safari.zip
+          gh release create "$GITHUB_REF_NAME" release/*.zip --title "Instagram Minimal $GITHUB_REF_NAME" --notes-file CHANGELOG.md

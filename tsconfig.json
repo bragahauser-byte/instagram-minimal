@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "types": ["chrome", "node", "vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@im/core": ["packages/core/src/index.ts"],
+      "@im/filters": ["packages/filters/src/index.ts"],
+      "@im/ui": ["packages/shared-ui/src/index.ts"]
+    }
+  },
+  "include": ["packages/**/*.ts", "packages/**/*.tsx", "extensions/**/*.ts", "extensions/**/*.tsx", "apps/dashboard/**/*.ts", "apps/dashboard/**/*.tsx", "tests/**/*.ts", "*.config.ts"]
+}

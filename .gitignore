@@ -1,0 +1,12 @@
+*.log
+.DS_Store
+apps/ios/*.xcodeproj/
+apps/ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+apps/ios/*.xcodeproj/xcuserdata/
+apps/ios/Extension/Resources/
+apps/ios/build/
+dist/
+node_modules/
+playwright-report/
+release/
+test-results/

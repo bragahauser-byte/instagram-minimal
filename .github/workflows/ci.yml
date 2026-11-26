@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: Extensões e painel (testes)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: Firefox: web-ext lint
+        run: npx --yes web-ext@8 lint --source-dir dist/firefox --warnings-as-errors=false
+      - run: npx playwright install --with-deps chromium
+      - name: Testes ponta a ponta (Chromium + extensão)
+        run: npx playwright test
+      - run: node scripts/package.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: extensoes
+          path: release/*.zip
+
+  apple:
+    name: App e extensão Safari (compilação iOS e macOS)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build:ext -- safari
+      - run: node scripts/sync-safari.mjs
+      - run: brew install xcodegen
+      - name: Gerar projeto Xcode
+        working-directory: apps/ios
+        run: xcodegen
+      - name: Compilar para o simulador do iOS (sem assinatura)
+        working-directory: apps/ios
+        run: xcodebuild -project InstagramMinimal.xcodeproj -scheme InstagramMinimal-iOS -sdk iphonesimulator -destination "generic/platform=iOS Simulator" CODE_SIGNING_ALLOWED=NO build | tail -n 30
+      - name: Compilar para macOS (sem assinatura)
+        working-directory: apps/ios
+        run: xcodebuild -project InstagramMinimal.xcodeproj -scheme InstagramMinimal-macOS -destination "generic/platform=macOS" CODE_SIGNING_ALLOWED=NO build | tail -n 30
