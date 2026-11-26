@@ -195,8 +195,8 @@ test.describe('painel e modos', () => {
     // Persistência: recarregar a página e reabrir o painel.
     await page.reload();
     await page.waitForSelector('#app > *');
-    await page.waitForTimeout(250);
-    expect(await probe.hidden(page, 'post-2')).toBe(false);
+    // A extensão começa protegendo e aplica a configuração salva assim que a lê.
+    await expect.poll(() => probe.hidden(page, 'post-2')).toBe(false);
     const ui2 = await popup();
     await expect(ui2.getByText('Bloqueador desligado')).toBeVisible();
 

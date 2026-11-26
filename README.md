@@ -37,6 +37,20 @@ Não é uma rede social nem um cliente alternativo. Você abre o **instagram.com
 
 Cada bloqueio liga e desliga separadamente. Tudo fica salvo só no seu navegador.
 
+## Como usar (grátis, qualquer aparelho)
+
+Abra **https://bragahauser-byte.github.io/instagram-minimal/** e siga os passos do seu aparelho: instale um app gratuito de scripts → toque em **Instalar o Instagram Minimal** → **Abrir o Instagram** e entre com sua conta. O site mostra **✓ Instalado** quando terminar.
+
+| Aparelho | Navegador | App grátis |
+|---|---|---|
+| iPhone | Safari | Userscripts |
+| Android | Firefox | Violentmonkey |
+| Computador | Chrome / Edge | Tampermonkey |
+| Computador | Firefox | Violentmonkey |
+| Mac | Safari | Userscripts |
+
+O Chrome do celular e o app do Instagram não aceitam nenhum tipo de complemento, por isso no celular o guia usa o Safari ou o Firefox.
+
 ## Plataformas
 
 | Plataforma | Pacote | Situação |

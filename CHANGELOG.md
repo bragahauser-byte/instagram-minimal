@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0 — 26/nov/2026
+
+- Site virou um guia passo a passo com abas **iPhone / Android / Computador** (e Chrome, Edge, Firefox, Safari no computador), já aberto no aparelho de quem visita.
+- Mesmo caminho grátis em todo aparelho: app gratuito de scripts (Userscripts, Violentmonkey ou Tampermonkey) → **Instalar o Instagram Minimal** → **Abrir o Instagram**. No computador, sem zip e sem modo desenvolvedor.
+- O site mostra **✓ Instalado neste navegador** sozinho quando o script já está instalado.
+- Aviso automático quando o site é aberto no navegador errado (Chrome do iPhone/Android).
+
 ## 1.1.0 — 26/nov/2026
 
 - **Celular grátis:** Instagram Minimal como userscript (`instagram-minimal.user.js`), para o Safari do iPhone (app gratuito Userscripts) e o Firefox para Android (Violentmonkey). Servido pelo site e anexado à Release.

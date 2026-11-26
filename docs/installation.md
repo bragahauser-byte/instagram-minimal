@@ -24,7 +24,18 @@ O jeito mais fácil: **abra https://bragahauser-byte.github.io/instagram-minimal
 
 O userscript liga todos os bloqueios. Para pausar, desligue o script no app (Userscripts ou Violentmonkey). Ele se atualiza sozinho pelo mesmo endereço. Diferença para a extensão: não tem painel nem modos, e o bloqueio de links diretos é feito pela tela de bloqueio (não pela regra de rede).
 
-## Baixar (computador)
+## Computador, de graça (recomendado)
+
+Mesmo caminho do celular, sem zip e sem modo desenvolvedor. O site mostra os passos do seu navegador:
+
+- **Chrome:** adicione o [Tampermonkey](https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo), abra `chrome://extensions/?id=dhdgffkkebhmkfjojejmpbldmpobfkfo` e ative **Permitir scripts do usuário**, depois instale o [script](https://bragahauser-byte.github.io/instagram-minimal/instagram-minimal.user.js).
+- **Edge:** adicione o [Tampermonkey](https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd), ligue o **Modo de desenvolvedor** em `edge://extensions` se o Tampermonkey pedir, e instale o script.
+- **Firefox:** adicione o [Violentmonkey](https://addons.mozilla.org/firefox/addon/violentmonkey/) e instale o script.
+- **Safari no Mac:** app gratuito [Userscripts](https://apps.apple.com/br/app/userscripts/id1463298887), ative em Safari → Ajustes → Extensões e instale o script.
+
+Depois de instalar, a página do projeto mostra **✓ Instalado neste navegador**.
+
+## Extensão completa (computador, com painel e modos)
 
 Pegue os `.zip` em **[Releases](https://github.com/bragahauser-byte/instagram-minimal/releases/latest)**, ou gere localmente:
 

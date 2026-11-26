@@ -25,6 +25,7 @@ const header = `// ==UserScript==
 // @icon         ${SITE}/apple-touch-icon.png
 // @match        https://www.instagram.com/*
 // @match        https://instagram.com/*
+// @match        https://bragahauser-byte.github.io/instagram-minimal/*
 // @run-at       document-start
 // @noframes
 // @grant        none
@@ -41,6 +42,7 @@ const out = await build({
   minifySyntax: true,
   legalComments: 'none',
   tsconfig: resolve(root, 'tsconfig.json'),
+  define: { __VERSION__: JSON.stringify(version) },
 });
 const code = header + '\n' + out.outputFiles[0].text;
 

@@ -21,4 +21,6 @@ export const FREE = {
   userscriptsIOS: 'https://apps.apple.com/br/app/userscripts/id1463298887',
   violentmonkeyFirefox: 'https://addons.mozilla.org/firefox/addon/violentmonkey/',
   firefoxAndroid: 'https://play.google.com/store/apps/details?id=org.mozilla.firefox',
+  tampermonkeyChrome: 'https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo',
+  tampermonkeyEdge: 'https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd',
 };
