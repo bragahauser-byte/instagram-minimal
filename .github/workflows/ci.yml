@@ -13,8 +13,8 @@ jobs:
     name: Extensões e painel (testes)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -28,7 +28,7 @@ jobs:
       - name: Testes ponta a ponta (Chromium + extensão)
         run: npx playwright test
       - run: node scripts/package.mjs
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: extensoes
           path: release/*.zip
@@ -37,8 +37,8 @@ jobs:
     name: App e extensão Safari (compilação iOS e macOS)
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
