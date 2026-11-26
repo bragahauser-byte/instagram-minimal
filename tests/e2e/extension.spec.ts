@@ -84,12 +84,18 @@ test.describe('bloqueio na página (Chromium + extensão real)', () => {
     expect(escaped.filter((u) => u.includes('instagram.com'))).toEqual([]);
   });
 
-  test('link de Reel aberto direto: se a página carregar mesmo assim, o content script cobre', async ({ context, ig }) => {
+  test('link de Reel aberto direto: se a página carregar mesmo assim, o content script cobre', async ({ context, extensionId }) => {
+    void extensionId;
     // Simula uma falha da regra de rede (ex.: navegador sem suporte): remove a regra.
     const [sw] = context.serviceWorkers();
+    const count = () => sw!.evaluate(() => chrome.declarativeNetRequest.getDynamicRules().then((r) => r.length));
+    await expect.poll(count).toBe(1); // espera o background instalar a regra…
     await sw!.evaluate(() => chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [1] }));
-    const page = await ig('/reel/ABC123/');
-    expect(await probe.overlay(page)).toBe(true);
+    expect(await count()).toBe(0); // …e então a remove
+    const page = await context.newPage();
+    await page.goto('https://www.instagram.com/reel/ABC123/');
+    expect(page.url()).toBe('https://www.instagram.com/reel/ABC123/');
+    await expect.poll(() => probe.overlay(page)).toBe(true);
   });
 
   test('Direct: Reel vira "Reel bloqueado." e não abre; vídeo comum e post ficam', async ({ ig }) => {
